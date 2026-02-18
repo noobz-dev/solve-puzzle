@@ -152,6 +152,7 @@
     .tube-row { gap: 6px; }
     .tube-label { width: 22px; font-size: 0.72rem; }
     .ball-slot { max-width: 34px; font-size: 0.48rem; }
+    .tube-limit-input { width: 32px; font-size: 0.7rem; padding: 3px 4px; }
 
     /* Validation bar */
     .validation-bar { font-size: 0.68rem; }
@@ -169,8 +170,16 @@
     /* Color legend compact trên mobile */
     #color-legend > div { padding: 7px 10px; }
 
-    /* Popup */
-    #color-popup { width: 190px; padding: 12px; }
+    /* Popup — luôn ở giữa màn hình trên mobile */
+    #color-popup {
+      width: 190px; padding: 12px;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%);
+    }
+    #popup-overlay {
+      background: rgba(0,0,0,0.5);
+    }
     .popup-colors { gap: 6px; }
     .popup-chip { width: 32px; height: 32px; }
 
@@ -447,6 +456,37 @@
   .ball-slot-empty::after {
     transform: translate(-50%, -50%) rotate(-45deg);
   }
+
+  /* Ô bị khóa (vượt limit) */
+  .ball-slot-locked {
+    cursor: default !important;
+    transform: none !important;
+    border: 2px dashed rgba(107,107,138,0.2) !important;
+    background: rgba(107,107,138,0.03);
+    opacity: 0.25;
+  }
+
+  /* Input giới hạn ống rỗng */
+  .tube-limit-input {
+    width: 38px;
+    background: var(--surface);
+    border: 1px solid rgba(78,255,158,0.3);
+    border-radius: 8px;
+    color: var(--success);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    padding: 4px 6px;
+    outline: none;
+    text-align: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: border-color 0.2s;
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  .tube-limit-input::-webkit-outer-spin-button,
+  .tube-limit-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .tube-limit-input:focus { border-color: var(--success); }
 
   .tube-empty-tag {
     font-family: 'IBM Plex Mono', monospace;
@@ -1019,6 +1059,7 @@ let tubeCount = 9;
 let emptyCount = 2;
 let tubeSize = 4;
 let tubeData = [];
+let emptyTubeLimits = [];
 let popupTarget = null;
 
 // =================== INIT ===================
@@ -1144,6 +1185,7 @@ function buildTubes() {
   if (!tubeCount || !emptyCount || !tubeSize) return;
 
   tubeData = Array.from({length: tubeCount}, () => []);
+  emptyTubeLimits = Array.from({length: emptyCount}, () => tubeSize);
 
   // Set CSS var for grid columns
   document.getElementById('tubes-container').style.setProperty('--tube-size', tubeSize);
@@ -1181,13 +1223,33 @@ function renderTubes() {
 
     const balls = document.createElement('div');
     balls.className = 'tube-balls';
+    let limitInput = null;
 
     if (isEmptyTube) {
+      const emptyIdx = i - filledCount;
+      const limit = emptyTubeLimits[emptyIdx] || tubeSize;
+
       for (let j = 0; j < tubeSize; j++) {
         const slot = document.createElement('div');
-        slot.className = 'ball-slot ball-slot-empty';
+        slot.className = j < limit ? 'ball-slot ball-slot-empty' : 'ball-slot ball-slot-locked';
         balls.appendChild(slot);
       }
+
+      // Input giới hạn
+      limitInput = document.createElement('input');
+      limitInput.type = 'number';
+      limitInput.className = 'tube-limit-input';
+      limitInput.title = 'Giới hạn số bóng ống này chứa được';
+      limitInput.min = 1;
+      limitInput.max = tubeSize;
+      limitInput.value = limit;
+      limitInput.onchange = () => {
+        let v = parseInt(limitInput.value);
+        if (isNaN(v) || v < 1) v = 1;
+        if (v > tubeSize) v = tubeSize;
+        emptyTubeLimits[emptyIdx] = v;
+        renderTubes();
+      };
     } else {
       for (let j = 0; j < tubeSize; j++) {
         const slot = document.createElement('div');
@@ -1219,6 +1281,7 @@ function renderTubes() {
 
     row.appendChild(label);
     row.appendChild(balls);
+    if (limitInput) row.appendChild(limitInput);
     container.appendChild(row);
   }
 
@@ -1234,6 +1297,7 @@ function removeColor(tubeIdx, slotIdx) {
 
 function clearAll() {
   tubeData = Array.from({length: tubeCount}, () => []);
+  emptyTubeLimits = Array.from({length: emptyCount}, () => tubeSize);
   renderTubes();
   document.getElementById('solution-panel').classList.remove('visible');
   hideValidation();
@@ -1360,6 +1424,7 @@ function loadPreset() {
     ['Yw','Or','Bl','Pk'],
     [], [],
   ];
+  emptyTubeLimits = [4, 4];
   // Show config-ready button
   document.getElementById('config-ready').style.display = 'block';
   document.getElementById('config-hint').style.display = 'none';
@@ -1388,8 +1453,15 @@ function solve() {
 
   const filledCount = tubeCount - emptyCount;
   const state = [];
-  for (let i = 0; i < filledCount; i++) state.push((tubeData[i] || []).filter(Boolean));
-  for (let i = 0; i < emptyCount; i++) state.push([]);
+  const tubeCapacity = [];
+  for (let i = 0; i < filledCount; i++) {
+    state.push((tubeData[i] || []).filter(Boolean));
+    tubeCapacity.push(tubeSize);
+  }
+  for (let i = 0; i < emptyCount; i++) {
+    state.push([]);
+    tubeCapacity.push(emptyTubeLimits[i] || tubeSize);
+  }
 
   // Validate
   const colorCounts = {};
@@ -1413,7 +1485,7 @@ function solve() {
 
   setTimeout(() => {
     const t0 = performance.now();
-    const result = bfsSolve(state, tubeSize);
+    const result = bfsSolve(state, tubeSize, tubeCapacity);
     const t1 = performance.now();
 
     loading.classList.remove('visible');
@@ -1459,7 +1531,7 @@ function solve() {
 // =================== A* SOLVER ===================
 // A* tìm lời giải tối ưu nhanh hơn BFS ~100-500 lần nhờ heuristic
 
-function bfsSolve(initial, MAX) {
+function bfsSolve(initial, MAX, tubeCapacity) {
   // --- Helper: min-heap đơn giản ---
   class MinHeap {
     constructor() { this.h = []; }
@@ -1505,15 +1577,17 @@ function bfsSolve(initial, MAX) {
     return t.length === MAX && new Set(t).size === 1;
   }
 
-  function canPour(src, dst) {
-    if (!src.length || dst.length >= MAX) return false;
+  function capOf(idx) { return tubeCapacity ? tubeCapacity[idx] : MAX; }
+
+  function canPour(src, dst, dstIdx) {
+    if (!src.length || dst.length >= capOf(dstIdx)) return false;
     return !dst.length || src[0] === dst[0];
   }
 
   function pour(s, i, j) {
     const ns = s.map(t => [...t]);
     const col = ns[i][0];
-    while (ns[i].length && ns[i][0] === col && ns[j].length < MAX)
+    while (ns[i].length && ns[i][0] === col && ns[j].length < capOf(j))
       ns[j].unshift(ns[i].shift());
     return ns;
   }
@@ -1561,7 +1635,7 @@ function bfsSolve(initial, MAX) {
       const srcUniform = state[i].every(c => c === col);
 
       for (let j = 0; j < state.length; j++) {
-        if (i === j || !canPour(state[i], state[j])) continue;
+        if (i === j || !canPour(state[i], state[j], j)) continue;
         if (!state[j].length && srcUniform) continue;
         if (isComplete(state[j])) continue;
 
