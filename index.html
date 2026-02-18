@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ball Sort Solver 🧪</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c6aff;
+    --accent2: #ff6a9b;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --success: #4eff9e;
+    --warning: #ffcc4e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,106,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 80%, rgba(255,106,155,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .logo-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.2); }
+    56% { transform: scale(1); }
+  }
+
+  .heart {
+    display: inline-block;
+    animation: heartbeat 1.4s ease-in-out infinite;
+    color: #ff4d6d;
+    filter: drop-shadow(0 0 6px rgba(255,77,109,0.7));
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 680px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0.5;
+  }
+
+  .panel-title {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .config-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .config-row label {
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  /* Vertical config layout — dùng grid để các cột thẳng hàng */
+  .config-col {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  /* 3 items đầu dùng chung grid 3 cột: label | input | hint */
+  .config-item {
+    display: grid;
+    grid-template-columns: 120px 70px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .config-item:focus-within { border-color: var(--accent); }
+
+  .config-item label {
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  .config-item-right {
+    display: contents; /* các con trực tiếp vào grid cha */
+  }
+
+  .input-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 400px) { .input-hint { display: none; } }
+
+  .num-input {
+    width: 62px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    padding: 7px 10px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .num-input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9b5de5);
+    color: white;
+    box-shadow: 0 4px 20px rgba(124,106,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,106,255,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-danger {
+    background: rgba(255,106,155,0.12);
+    border: 1px solid rgba(255,106,155,0.3);
+    color: var(--accent2);
+  }
+  .btn-danger:hover { background: rgba(255,106,155,0.22); }
+
+  .btn-upload {
+    background: rgba(78,255,158,0.08);
+    border: 1px solid rgba(78,255,158,0.25);
+    color: var(--success);
+  }
+  .btn-upload:hover { background: rgba(78,255,158,0.16); }
+
+  /* TUBES */
+  #tubes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .tube-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #tubes-container {
+    --tube-size: 4;
+  }
+
+  .tube-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  .tube-balls {
+    display: grid;
+    grid-template-columns: repeat(var(--tube-size, 4), 38px);
+    gap: 6px;
+  }
+
+  .ball-slot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    font-size: 0.55rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .ball-slot:hover { border-color: var(--accent); transform: scale(1.1); }
+
+  .ball-slot.filled {
+    border-style: solid;
+    border-width: 2px;
+  }
+
+  .ball-slot .remove-ball {
+    position: absolute;
+    top: -5px; right: -5px;
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    background: var(--accent2);
+    color: white;
+    font-size: 9px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 5;
+  }
+
+  .ball-slot.filled:hover .remove-ball { display: flex; }
+
+  .tube-empty-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--success);
+    padding: 6px 14px;
+    background: rgba(78,255,158,0.07);
+    border: 1px solid rgba(78,255,158,0.2);
+    border-radius: 20px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  /* SOLUTION */
+  .solution-panel {
+    grid-column: 1 / -1;
+    display: none;
+  }
+  .solution-panel.visible { display: block; }
+
+  .solution-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .solution-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .stat-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: rgba(124,106,255,0.1);
+    border: 1px solid rgba(124,106,255,0.25);
+    color: var(--accent);
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .steps-list::-webkit-scrollbar { width: 3px; }
+  .steps-list::-webkit-scrollbar-track { background: var(--surface); }
+  .steps-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    opacity: 0;
+    transform: translateX(-8px);
+    animation: slideIn 0.25s forwards;
+  }
+
+  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    width: 30px;
+    flex-shrink: 0;
+    text-align: center;
+    background: var(--card);
+    padding: 3px 4px;
+    border-radius: 7px;
+  }
+
+  .step-ball {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.2);
+  }
+
+  .step-text { font-size: 0.88rem; flex: 1; }
+  .step-text strong { color: var(--text); }
+  .step-text .arrow { color: var(--accent); margin: 0 5px; }
+  .step-tube-from { color: var(--accent2); font-weight: 700; }
+  .step-tube-to { color: var(--success); font-weight: 700; }
+
+  .error-msg {
+    padding: 12px 16px;
+    background: rgba(255,80,80,0.1);
+    border: 1px solid rgba(255,80,80,0.3);
+    border-radius: 12px;
+    color: #ff8080;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    display: none;
+    margin-bottom: 12px;
+  }
+  .error-msg.visible { display: block; }
+
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .loading.visible { display: block; }
+
+  .spinner {
+    width: 34px; height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .no-solution {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .no-solution .icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* ======= COLOR PICKER POPUP ======= */
+  #color-popup {
+    position: fixed;
+    z-index: 10000;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 16px 50px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,106,255,0.2);
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    width: 210px;
+  }
+
+  #color-popup.open { display: flex; }
+
+  .popup-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .popup-colors {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .popup-chip {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.12s;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.2);
+    position: relative;
+  }
+
+  .popup-chip:hover { transform: scale(1.2); border-color: white; }
+
+  .popup-chip .chip-label {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    white-space: nowrap;
+    pointer-events: none;
+    display: none;
+  }
+
+  .popup-chip:hover .chip-label { display: block; }
+
+  .popup-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .popup-close {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .popup-close:hover { color: var(--accent2); background: rgba(255,106,155,0.1); }
+
+  .popup-clear {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,106,155,0.3);
+    transition: all 0.15s;
+    background: transparent;
+  }
+  .popup-clear:hover { background: rgba(255,106,155,0.1); }
+
+  /* ======= UPLOAD SECTION ======= */
+  .upload-section {
+    border: 1px dashed rgba(78,255,158,0.25);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    background: rgba(78,255,158,0.02);
+  }
+
+  .upload-section:hover { border-color: rgba(78,255,158,0.5); }
+
+  .upload-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .upload-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--success);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  #upload-input { display: none; }
+
+  .upload-preview {
+    display: none;
+    margin-top: 10px;
+  }
+
+  .upload-preview img {
+    width: 100%;
+    max-height: 130px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .upload-preview.show { display: block; }
+
+  .ai-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.73rem;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .ai-status.show { display: block; }
+  .ai-status.thinking { background: rgba(124,106,255,0.1); color: var(--accent); }
+  .ai-status.done { background: rgba(78,255,158,0.08); color: var(--success); border: 1px solid rgba(78,255,158,0.2); }
+  .ai-status.fail { background: rgba(255,80,80,0.08); color: #ff8080; border: 1px solid rgba(255,80,80,0.2); }
+
+  /* VALIDATION */
+  .validation-bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .validation-bar.show { display: block; }
+  .validation-bar.ok { background: rgba(78,255,158,0.07); color: var(--success); border: 1px solid rgba(78,255,158,0.2); }
+  .validation-bar.err { background: rgba(255,80,80,0.07); color: #ff8080; border: 1px solid rgba(255,80,80,0.2); }
+
+  /* INFO */
+  .info-section {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.73rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .info-row .num { color: var(--accent); font-size: 0.65rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* Overlay */
+  #popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+  }
+
+  /* Config hint */
+  .config-hint-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 10px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+
+  /* Tubes section fade in */
+  #tubes-section {
+    animation: fadeDown 0.3s ease;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Solve button appear animation */
+  #solve-section {
+    animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .btn-solve-big {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4eff9e, #00c875);
+    color: #0a0a0f;
+    font-weight: 800;
+    box-shadow: 0 6px 24px rgba(78,255,158,0.35);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .btn-solve-big:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(78,255,158,0.5);
+  }
+
+  .btn-solve-big:active { transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="logo-icon">🧪</span>
+    <h1>Ball Sort Solver</h1>
+    <p class="subtitle">Made with <span class="heart">❤️</span> by CuongNguyen</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT: Config + Tubes -->
+    <div class="panel">
+      <div class="panel-title">⬡ Cấu hình & Nhập liệu</div>
+
+      <div class="config-col">
+        <div class="config-item">
+          <label>Số ống</label>
+          <div class="config-item-right">
+            <input type="number" class="num-input" id="tube-count" min="2" max="15" placeholder="vd: 9" oninput="onConfigChange()">
+            <span class="input-hint">tổng số ống trong màn</span>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>Ống rỗng</label>
+          <div class="config-item-right">
+            <input type="number" class="num-input" id="empty-count" min="1" max="5" placeholder="vd: 2" oninput="onConfigChange()">
+            <span class="input-hint">ống không có bóng</span>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>Viên / ống</label>
+          <div class="config-item-right">
+            <input type="number" class="num-input" id="tube-size" min="3" max="6" placeholder="vd: 4" oninput="onConfigChange()">
+            <span class="input-hint">số bóng mỗi ống (3–6)</span>
+          </div>
+        </div>
+
+        <!-- Chỉ hiện khi đủ thông tin config -->
+        <div id="config-ready" style="display:none;">
+          <button class="btn btn-primary" onclick="buildTubes()" style="width:100%; box-shadow:0 4px 16px rgba(124,106,255,0.4);">✦ Tạo lưới ống</button>
+        </div>
+
+        <!-- Gợi ý khi chưa đủ -->
+        <div id="config-hint" class="config-hint-msg">
+          ← Điền đủ 3 thông tin để tạo lưới ống
+        </div>
+      </div>
+
+      <!-- Chỉ hiện sau khi bấm Tạo -->
+      <div id="tubes-section" style="display:none;">
+        <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="loadPreset()" style="font-size:0.75rem">⚡ Màn mẫu</button>
+          <button class="btn btn-danger" onclick="clearAll()" style="font-size:0.75rem">✕ Xóa hết</button>
+        </div>
+
+        <div id="tubes-container"></div>
+
+        <div class="validation-bar" id="validation-bar"></div>
+
+        <!-- Chỉ hiện khi fill đủ và đúng màu -->
+        <div id="solve-section" style="display:none; margin-top:16px;">
+          <button class="btn-solve-big" onclick="solve()">▶ Giải ngay</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Info + Color Legend -->
+    <div class="panel">
+      <div class="panel-title">◈ Hướng dẫn</div>
+
+      <div class="info-section" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="info-row"><span class="num">01</span><span>Click vào ô trống → popup chọn màu hiện ra</span></div>
+        <div class="info-row"><span class="num">02</span><span>Click viên đã tô → thay đổi màu</span></div>
+        <div class="info-row"><span class="num">03</span><span>Hover viên → bấm ✕ để xóa</span></div>
+        <div class="info-row"><span class="num">04</span><span>Ô 1 = viên <strong style="color:var(--accent)">trên cùng</strong> của ống</span></div>
+        <div class="info-row"><span class="num">05</span><span>Tuỳ chỉnh số viên/ống (3–6) theo từng màn</span></div>
+        <div class="info-row"><span class="num">06</span><span>BFS đảm bảo lời giải <strong style="color:var(--accent)">ít bước nhất</strong></span></div>
+      </div>
+
+      <!-- Color legend -->
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+        <div class="panel-title" style="margin-bottom:14px;">◈ Bảng màu hỗ trợ</div>
+        <div id="color-legend"></div>
+      </div>
+    </div>
+
+    <!-- SOLUTION -->
+    <div class="panel solution-panel" id="solution-panel">
+      <div class="solution-header">
+        <div class="panel-title" style="margin:0">◈ Lời giải BFS</div>
+        <div class="solution-stats" id="solution-stats"></div>
+      </div>
+      <div class="error-msg" id="error-msg"></div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        Đang tính toán (A*)...
+      </div>
+      <div class="steps-list" id="steps-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- COLOR PICKER POPUP -->
+<div id="popup-overlay" onclick="closePopup()"></div>
+<div id="color-popup">
+  <div class="popup-title">Chọn màu</div>
+  <div class="popup-colors" id="popup-colors"></div>
+  <div class="popup-actions">
+    <button class="popup-clear" onclick="clearSlot()">✕ Xóa ô này</button>
+    <div class="popup-close" onclick="closePopup()">Đóng</div>
+  </div>
+</div>
+
+<script>
+// =================== COLORS ===================
+// Màu được căn chỉnh theo màu thật trong game Ball Sort
+const COLORS = [
+  { id: 'Rd', name: 'Red',     hex: '#D62828', emoji: '🔴' }, // Đỏ đậm
+  { id: 'Bl', name: 'Blue',    hex: '#4B8FD6', emoji: '🔵' }, // Xanh dương
+  { id: 'Gn', name: 'Green',   hex: '#3CB043', emoji: '🟢' }, // Xanh lá tươi
+  { id: 'Yw', name: 'Yellow',  hex: '#F5C518', emoji: '🟡' }, // Vàng kim
+  { id: 'Pu', name: 'Purple',  hex: '#7B2D8B', emoji: '🟣' }, // Tím đậm
+  { id: 'Pk', name: 'Pink',    hex: '#FF5FA2', emoji: '🩷' }, // Hồng tươi
+  { id: 'Or', name: 'Orange',  hex: '#F07020', emoji: '🟠' }, // Cam
+  { id: 'Cy', name: 'Cyan',    hex: '#2EC4B6', emoji: '🩵' }, // Xanh ngọc/Teal
+  { id: 'Mg', name: 'Magenta', hex: '#D63384', emoji: '💜' }, // Hồng tím
+  { id: 'Lm', name: 'Lime',    hex: '#8BC34A', emoji: '💚' }, // Xanh chanh
+  { id: 'Br', name: 'Brown',   hex: '#8B5E3C', emoji: '🟤' }, // Nâu
+  { id: 'Gy', name: 'Gray',    hex: '#9098A9', emoji: '⚪' }, // Xám
+];
+const COLOR_MAP = {};
+COLORS.forEach(c => { COLOR_MAP[c.id] = c; });
+
+// =================== STATE ===================
+let tubeCount = 9;
+let emptyCount = 2;
+let tubeSize = 4;
+let tubeData = [];
+let popupTarget = null;
+
+// =================== INIT ===================
+function init() {
+  buildColorLegend();
+  buildPopupColors();
+  // Don't auto-build tubes — wait for user input
+}
+
+const COLOR_VI = {
+  Rd:'Đỏ', Bl:'Xanh dương', Gn:'Xanh lá', Yw:'Vàng',
+  Pu:'Tím', Pk:'Hồng', Or:'Cam', Cy:'Ngọc',
+  Mg:'Hồng tím', Lm:'Xanh chanh', Br:'Nâu', Gy:'Xám'
+};
+
+function buildColorLegend() {
+  const el = document.getElementById('color-legend');
+  el.innerHTML = '';
+  el.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+
+  COLORS.forEach(c => {
+    const row = document.createElement('div');
+    row.style.cssText = `
+      display:flex; align-items:center; gap:12px;
+      padding:8px 12px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      cursor:default;
+      transition:border-color 0.15s;
+    `;
+    row.onmouseenter = () => row.style.borderColor = c.hex;
+    row.onmouseleave = () => row.style.borderColor = 'var(--border)';
+
+    // Ball
+    const ball = document.createElement('div');
+    ball.style.cssText = `
+      width:32px; height:32px; border-radius:50%; flex-shrink:0;
+      background:${ballGradient(c.hex)};
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,0.35), inset 0 3px 6px rgba(255,255,255,0.25), 0 2px 8px ${c.hex}55;
+    `;
+
+    // Info
+    const info = document.createElement('div');
+    info.style.cssText = 'display:flex;flex-direction:column;gap:2px;flex:1;';
+
+    const nameRow = document.createElement('div');
+    nameRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+    const viName = document.createElement('span');
+    viName.style.cssText = 'font-size:0.88rem;font-weight:700;color:var(--text);font-family:Syne,sans-serif;';
+    viName.textContent = COLOR_VI[c.id];
+
+    const enName = document.createElement('span');
+    enName.style.cssText = 'font-size:0.75rem;color:var(--muted);font-family:JetBrains Mono,monospace;';
+    enName.textContent = c.name;
+
+    nameRow.appendChild(viName);
+    nameRow.appendChild(enName);
+
+    const code = document.createElement('div');
+    code.style.cssText = `
+      font-family:JetBrains Mono,monospace; font-size:0.68rem;
+      color:${c.hex}; letter-spacing:1px;
+    `;
+    code.textContent = `mã: ${c.id}  •  ${c.hex}`;
+
+    info.appendChild(nameRow);
+    info.appendChild(code);
+
+    // Circle dot (thay emoji)
+    const dot = document.createElement('div');
+    dot.style.cssText = `
+      width:18px; height:18px; border-radius:50%; flex-shrink:0;
+      background:${c.hex};
+      box-shadow: 0 0 8px ${c.hex}88;
+    `;
+
+    row.appendChild(ball);
+    row.appendChild(info);
+    row.appendChild(dot);
+    el.appendChild(row);
+  });
+}
+
+function buildPopupColors() {
+  const el = document.getElementById('popup-colors');
+  el.innerHTML = '';
+  COLORS.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = 'popup-chip';
+    chip.style.background = ballGradient(c.hex);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'chip-label';
+    lbl.textContent = COLOR_VI[c.id] || c.name;
+    chip.appendChild(lbl);
+
+    chip.title = `${c.emoji} ${COLOR_VI[c.id] || c.name} (${c.id})`;
+    chip.onclick = () => pickColor(c.id);
+    el.appendChild(chip);
+  });
+}
+
+// =================== CONFIG CHANGE ===================
+function onConfigChange() {
+  const tc = parseInt(document.getElementById('tube-count').value);
+  const ec = parseInt(document.getElementById('empty-count').value);
+  const ts = parseInt(document.getElementById('tube-size').value);
+
+  const ready = tc >= 2 && tc <= 15 && ec >= 1 && ec <= 5 && ts >= 3 && ts <= 6 && ec < tc;
+
+  document.getElementById('config-ready').style.display = ready ? 'block' : 'none';
+  document.getElementById('config-hint').style.display  = ready ? 'none' : 'block';
+}
+
+// =================== BUILD TUBES ===================
+function buildTubes() {
+  tubeCount  = parseInt(document.getElementById('tube-count').value);
+  emptyCount = parseInt(document.getElementById('empty-count').value);
+  tubeSize   = parseInt(document.getElementById('tube-size').value);
+
+  if (!tubeCount || !emptyCount || !tubeSize) return;
+
+  tubeData = Array.from({length: tubeCount}, () => []);
+
+  // Set CSS var for grid columns
+  document.getElementById('tubes-container').style.setProperty('--tube-size', tubeSize);
+
+  // Show tubes section
+  const sec = document.getElementById('tubes-section');
+  sec.style.display = 'block';
+  sec.style.animation = 'none';
+  void sec.offsetWidth; // reflow
+  sec.style.animation = '';
+
+  // Hide solve button
+  document.getElementById('solve-section').style.display = 'none';
+  document.getElementById('solution-panel').classList.remove('visible');
+
+  renderTubes();
+  hideValidation();
+}
+
+function renderTubes() {
+  const container = document.getElementById('tubes-container');
+  container.innerHTML = '';
+  const filledCount = tubeCount - emptyCount;
+
+  for (let i = 0; i < tubeCount; i++) {
+    const isEmptyTube = i >= filledCount;
+    const row = document.createElement('div');
+    row.className = 'tube-row';
+
+    const label = document.createElement('div');
+    label.className = 'tube-label';
+    label.textContent = `Ố${i+1}`;
+    label.style.color = isEmptyTube ? 'var(--success)' : 'var(--muted)';
+
+    const balls = document.createElement('div');
+    balls.className = 'tube-balls';
+
+    if (isEmptyTube) {
+      const tag = document.createElement('div');
+      tag.className = 'tube-empty-tag';
+      tag.textContent = '✓ rỗng';
+      balls.appendChild(tag);
+    } else {
+      for (let j = 0; j < tubeSize; j++) {
+        const slot = document.createElement('div');
+        slot.className = 'ball-slot';
+        const color = tubeData[i] && tubeData[i][j];
+
+        if (color) {
+          const c = COLOR_MAP[color];
+          slot.classList.add('filled');
+          slot.style.background = ballGradient(c.hex);
+          slot.style.borderColor = c.hex;
+          slot.style.boxShadow = `0 2px 8px ${c.hex}44, inset 0 -2px 0 rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.2)`;
+          slot.title = `${c.name} — click để đổi màu`;
+
+          const removeBtn = document.createElement('div');
+          removeBtn.className = 'remove-ball';
+          removeBtn.textContent = '×';
+          removeBtn.onclick = (e) => { e.stopPropagation(); removeColor(i, j); };
+          slot.appendChild(removeBtn);
+        } else {
+          slot.textContent = j === 0 ? '▲' : `${j+1}`;
+          slot.title = j === 0 ? 'Lớp trên cùng — click để chọn màu' : `Lớp ${j+1} — click để chọn màu`;
+        }
+
+        slot.onclick = () => openPopup(i, j, slot);
+        balls.appendChild(slot);
+      }
+    }
+
+    row.appendChild(label);
+    row.appendChild(balls);
+    container.appendChild(row);
+  }
+
+  validateColors();
+}
+
+function removeColor(tubeIdx, slotIdx) {
+  if (!tubeData[tubeIdx]) return;
+  tubeData[tubeIdx][slotIdx] = null;
+  tubeData[tubeIdx] = tubeData[tubeIdx].filter(Boolean);
+  renderTubes();
+}
+
+function clearAll() {
+  tubeData = Array.from({length: tubeCount}, () => []);
+  renderTubes();
+  document.getElementById('solution-panel').classList.remove('visible');
+  hideValidation();
+}
+
+// =================== POPUP COLOR PICKER ===================
+function openPopup(tubeIdx, slotIdx, slotEl) {
+  popupTarget = { tubeIdx, slotIdx };
+  const popup   = document.getElementById('color-popup');
+  const overlay = document.getElementById('popup-overlay');
+
+  const rect    = slotEl.getBoundingClientRect();
+  const scrollY = window.scrollY || 0;
+  const scrollX = window.scrollX || 0;
+
+  let top  = rect.bottom + scrollY + 8;
+  let left = rect.left   + scrollX;
+
+  // Keep in viewport
+  if (left + 220 > window.innerWidth - 10) left = window.innerWidth - 230;
+  if (top + 220 > window.innerHeight + scrollY) top = rect.top + scrollY - 220;
+
+  popup.style.top  = `${top}px`;
+  popup.style.left = `${Math.max(8, left)}px`;
+  popup.classList.add('open');
+  overlay.style.display = 'block';
+}
+
+function closePopup() {
+  document.getElementById('color-popup').classList.remove('open');
+  document.getElementById('popup-overlay').style.display = 'none';
+  popupTarget = null;
+}
+
+function pickColor(colorId) {
+  if (!popupTarget) return;
+  const { tubeIdx, slotIdx } = popupTarget;
+  if (!tubeData[tubeIdx]) tubeData[tubeIdx] = [];
+  tubeData[tubeIdx][slotIdx] = colorId;
+  closePopup();
+  renderTubes();
+}
+
+function clearSlot() {
+  if (!popupTarget) return;
+  const { tubeIdx, slotIdx } = popupTarget;
+  removeColor(tubeIdx, slotIdx);
+  closePopup();
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+// =================== VALIDATION ===================
+function validateColors() {
+  const filledCount = tubeCount - emptyCount;
+  const counts = {};
+  for (let i = 0; i < filledCount; i++) {
+    const tube = tubeData[i] || [];
+    for (const c of tube) if (c) counts[c] = (counts[c] || 0) + 1;
+  }
+
+  const el = document.getElementById('validation-bar');
+  const solveSection = document.getElementById('solve-section');
+
+  if (!Object.keys(counts).length) {
+    el.className = 'validation-bar';
+    solveSection.style.display = 'none';
+    return;
+  }
+
+  const errors = [];
+  for (const [id, cnt] of Object.entries(counts)) {
+    if (cnt !== tubeSize) errors.push(`${COLOR_MAP[id]?.name || id}: ${cnt}/${tubeSize}`);
+  }
+
+  // Also check all slots are filled
+  let totalFilled = 0;
+  for (let i = 0; i < filledCount; i++) totalFilled += (tubeData[i] || []).filter(Boolean).length;
+  const totalNeeded = filledCount * tubeSize;
+  const allFilled = totalFilled === totalNeeded;
+
+  if (errors.length || !allFilled) {
+    el.className = 'validation-bar show err';
+    if (!allFilled && !errors.length) {
+      el.textContent = `⚠ Còn ${totalNeeded - totalFilled} ô chưa điền`;
+    } else {
+      el.innerHTML = '⚠ Màu chưa đủ: ' + errors.join(' &nbsp;|&nbsp; ');
+    }
+    solveSection.style.display = 'none';
+  } else {
+    el.className = 'validation-bar show ok';
+    el.textContent = `✓ ${Object.keys(counts).length} màu × ${tubeSize} viên — đủ điều kiện giải!`;
+    // Show solve button with animation
+    if (solveSection.style.display === 'none') {
+      solveSection.style.display = 'block';
+      solveSection.style.animation = 'none';
+      void solveSection.offsetWidth;
+      solveSection.style.animation = '';
+    }
+  }
+}
+
+function hideValidation() {
+  document.getElementById('validation-bar').className = 'validation-bar';
+  document.getElementById('solve-section').style.display = 'none';
+}
+
+// =================== IMAGE UPLOAD + AI (removed) ===================
+
+// =================== PRESET ===================
+function loadPreset() {
+  document.getElementById('tube-count').value = 9;
+  document.getElementById('empty-count').value = 2;
+  document.getElementById('tube-size').value = 4;
+  tubeCount = 9; emptyCount = 2; tubeSize = 4;
+  tubeData = [
+    ['Pk','Yw','Bl','Pu'],
+    ['Bl','Gn','Pu','Or'],
+    ['Rd','Gn','Pk','Pk'],
+    ['Or','Or','Yw','Gn'],
+    ['Pu','Gn','Bl','Rd'],
+    ['Rd','Yw','Rd','Pu'],
+    ['Yw','Or','Bl','Pk'],
+    [], [],
+  ];
+  // Show config-ready button
+  document.getElementById('config-ready').style.display = 'block';
+  document.getElementById('config-hint').style.display = 'none';
+  // Show tubes section
+  document.getElementById('tubes-section').style.display = 'block';
+  document.getElementById('solution-panel').classList.remove('visible');
+  renderTubes();
+}
+
+// =================== SOLVE ===================
+function solve() {
+  const solPanel  = document.getElementById('solution-panel');
+  const loading   = document.getElementById('loading');
+  const errorMsg  = document.getElementById('error-msg');
+  const stepsList = document.getElementById('steps-list');
+  const stats     = document.getElementById('solution-stats');
+
+  solPanel.classList.add('visible');
+  loading.classList.add('visible');
+  errorMsg.classList.remove('visible');
+  stepsList.innerHTML = '';
+  stats.innerHTML = '';
+
+  const filledCount = tubeCount - emptyCount;
+  const state = [];
+  for (let i = 0; i < filledCount; i++) state.push((tubeData[i] || []).filter(Boolean));
+  for (let i = 0; i < emptyCount; i++) state.push([]);
+
+  // Validate
+  const colorCounts = {};
+  for (const tube of state) for (const c of tube) colorCounts[c] = (colorCounts[c] || 0) + 1;
+
+  for (const [c, count] of Object.entries(colorCounts)) {
+    if (count !== tubeSize) {
+      loading.classList.remove('visible');
+      errorMsg.textContent = `⚠ Màu "${COLOR_MAP[c]?.name || c}" có ${count} viên, cần đúng ${tubeSize}!`;
+      errorMsg.classList.add('visible');
+      return;
+    }
+  }
+
+  if (!Object.keys(colorCounts).length) {
+    loading.classList.remove('visible');
+    errorMsg.textContent = '⚠ Chưa nhập dữ liệu!';
+    errorMsg.classList.add('visible');
+    return;
+  }
+
+  setTimeout(() => {
+    const t0 = performance.now();
+    const result = bfsSolve(state, tubeSize);
+    const t1 = performance.now();
+
+    loading.classList.remove('visible');
+
+    if (!result) {
+      stepsList.innerHTML = `<div class="no-solution"><div class="icon">🤔</div>Không tìm được lời giải.<br><span style="font-size:0.78rem; margin-top:6px; display:block;">Kiểm tra lại màu nhập — có thể nhập nhầm màu.</span></div>`;
+      return;
+    }
+
+    const moves = result.moves || result;
+    const statesInfo = result.states ? `🔍 ${result.states.toLocaleString()} trạng thái` : '🔍 A*';
+
+    stats.innerHTML = `
+      <span class="stat-chip">⚡ ${moves.length} bước tối ưu</span>
+      <span class="stat-chip">⏱ ${(t1-t0).toFixed(0)}ms</span>
+      <span class="stat-chip">${statesInfo}</span>
+    `;
+
+    moves.forEach(([src, dst, color], idx) => {
+      const c = COLOR_MAP[color];
+      const item = document.createElement('div');
+      item.className = 'step-item';
+      item.style.animationDelay = `${idx * 22}ms`;
+      item.innerHTML = `
+        <div class="step-num">${idx+1}</div>
+        <div class="step-ball" style="background:${ballGradient(c.hex)}"></div>
+        <div class="step-text">
+          Đổ <strong>${c.emoji} ${COLOR_VI[c.id] || c.name}</strong>
+          <span class="arrow">từ</span>
+          <span class="step-tube-from">Ống ${src}</span>
+          <span class="arrow">→</span>
+          <span class="step-tube-to">Ống ${dst}</span>
+        </div>
+      `;
+      stepsList.appendChild(item);
+    });
+  }, 50);
+}
+
+// =================== A* SOLVER ===================
+// A* tìm lời giải tối ưu nhanh hơn BFS ~100-500 lần nhờ heuristic
+
+function bfsSolve(initial, MAX) {
+  // --- Helper: min-heap đơn giản ---
+  class MinHeap {
+    constructor() { this.h = []; }
+    push(item) {
+      this.h.push(item);
+      this._up(this.h.length - 1);
+    }
+    pop() {
+      const top = this.h[0];
+      const last = this.h.pop();
+      if (this.h.length) { this.h[0] = last; this._down(0); }
+      return top;
+    }
+    get size() { return this.h.length; }
+    _up(i) {
+      while (i > 0) {
+        const p = (i - 1) >> 1;
+        if (this.h[p][0] <= this.h[i][0]) break;
+        [this.h[p], this.h[i]] = [this.h[i], this.h[p]];
+        i = p;
+      }
+    }
+    _down(i) {
+      const n = this.h.length;
+      while (true) {
+        let m = i, l = 2*i+1, r = 2*i+2;
+        if (l < n && this.h[l][0] < this.h[m][0]) m = l;
+        if (r < n && this.h[r][0] < this.h[m][0]) m = r;
+        if (m === i) break;
+        [this.h[m], this.h[i]] = [this.h[i], this.h[m]];
+        i = m;
+      }
+    }
+  }
+
+  function key(s) { return s.map(t => t.join(',')).join('|'); }
+
+  function done(s) {
+    return s.every(t => !t.length || (t.length === MAX && new Set(t).size === 1));
+  }
+
+  function isComplete(t) {
+    return t.length === MAX && new Set(t).size === 1;
+  }
+
+  function canPour(src, dst) {
+    if (!src.length || dst.length >= MAX) return false;
+    return !dst.length || src[0] === dst[0];
+  }
+
+  function pour(s, i, j) {
+    const ns = s.map(t => [...t]);
+    const col = ns[i][0];
+    while (ns[i].length && ns[i][0] === col && ns[j].length < MAX)
+      ns[j].unshift(ns[i].shift());
+    return ns;
+  }
+
+  // Heuristic: đếm số viên "không đúng chỗ"
+  // Một ống hoàn chỉnh = h đóng góp 0
+  // Ống có nhiều màu lẫn = h cao → ưu tiên giải quyết sớm
+  function heuristic(s) {
+    let h = 0;
+    for (const t of s) {
+      if (!t.length || isComplete(t)) continue;
+      // Đếm số "vết gãy" trong ống (chỗ đổi màu)
+      for (let k = 1; k < t.length; k++) {
+        if (t[k] !== t[k-1]) h += 2;
+      }
+      // Ống chưa đầy cũng cần thêm bước
+      if (t.length < MAX) h += 1;
+    }
+    return h;
+  }
+
+  const start = initial.map(t => [...t]);
+  const startKey = key(start);
+  const gScore = new Map([[startKey, 0]]);
+  const heap = new MinHeap();
+  heap.push([heuristic(start), 0, start, []]);
+
+  const STATE_LIMIT = 2_000_000;
+  let statesExplored = 0;
+
+  while (heap.size) {
+    const [f, g, state, moves] = heap.pop();
+    statesExplored++;
+
+    if (done(state)) return { moves, states: statesExplored };
+
+    const curKey = key(state);
+    // Bỏ qua nếu đã tìm đường ngắn hơn
+    if ((gScore.get(curKey) ?? Infinity) < g) continue;
+
+    for (let i = 0; i < state.length; i++) {
+      if (!state[i].length || isComplete(state[i])) continue;
+
+      const col = state[i][0];
+      const srcUniform = state[i].every(c => c === col);
+
+      for (let j = 0; j < state.length; j++) {
+        if (i === j || !canPour(state[i], state[j])) continue;
+        if (!state[j].length && srcUniform) continue;
+        if (isComplete(state[j])) continue;
+
+        const ns = pour(state, i, j);
+        const nk = key(ns);
+        const ng = g + 1;
+
+        if (ng < (gScore.get(nk) ?? Infinity)) {
+          gScore.set(nk, ng);
+          const nf = ng + heuristic(ns);
+          heap.push([nf, ng, ns, [...moves, [i+1, j+1, col]]]);
+        }
+      }
+    }
+
+    if (statesExplored >= STATE_LIMIT) return null;
+  }
+  return null;
+}
+
+// =================== UTILS ===================
+function ballGradient(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  const light = `rgb(${Math.min(255,r+70)},${Math.min(255,g+70)},${Math.min(255,b+70)})`;
+  const dark  = `rgb(${Math.max(0,r-50)},${Math.max(0,g-50)},${Math.max(0,b-50)})`;
+  return `radial-gradient(circle at 35% 30%, ${light}, ${hex} 55%, ${dark})`;
+}
+
+init();
+</script>
+</body>
+</html>
