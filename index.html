@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ball Sort Solver 🧪</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap');
 
   :root {
     --bg: #0a0a0f;
@@ -25,7 +25,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -93,7 +93,7 @@
   .subtitle {
     color: var(--muted);
     font-size: 0.9rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     margin-top: 8px;
   }
 
@@ -103,8 +103,90 @@
     gap: 24px;
   }
 
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .quick-actions .btn {
+    font-size: 0.78rem;
+    flex: 1;
+  }
+
+  /* ============ MOBILE RESPONSIVE ============ */
   @media (max-width: 680px) {
-    .layout { grid-template-columns: 1fr; }
+    .layout { grid-template-columns: 1fr; gap: 16px; }
+
+    /* Container */
+    .container { padding: 20px 14px 48px; }
+
+    /* Header gọn hơn */
+    header { margin-bottom: 28px; }
+    .logo-icon { font-size: 1.8rem; margin-bottom: 4px; }
+    h1 { font-size: 1.8rem; letter-spacing: -0.5px; }
+    .subtitle { font-size: 0.75rem; }
+
+    /* Panel */
+    .panel { padding: 18px 16px; border-radius: 16px; }
+    .panel-title { font-size: 0.65rem; letter-spacing: 2px; margin-bottom: 14px; }
+
+    /* Config items: ẩn hint, thu gọn */
+    .config-item {
+      grid-template-columns: 1fr 70px;
+    }
+    .input-hint { display: none; }
+    .config-item label { font-size: 0.82rem; }
+
+    /* Buttons touch-friendly */
+    .btn { padding: 11px 16px; font-size: 0.82rem; min-height: 44px; }
+    .btn-solve-big { padding: 14px; font-size: 0.95rem; }
+
+    /* Quick actions */
+    #tubes-section > div:first-child { gap: 8px; }
+    #tubes-section > div:first-child .btn { flex: 1; justify-content: center; }
+
+    /* Tubes */
+    #tubes-container { gap: 8px; }
+    .tube-row { gap: 6px; }
+    .tube-label { width: 22px; font-size: 0.72rem; }
+    .ball-slot { max-width: 34px; font-size: 0.48rem; }
+
+    /* Validation bar */
+    .validation-bar { font-size: 0.68rem; }
+
+    /* Solution */
+    .solution-panel { grid-column: 1; }
+    .steps-list { max-height: 400px; }
+    .step-item { padding: 9px 12px; gap: 9px; }
+    .step-num { width: 26px; font-size: 0.68rem; }
+    .step-text { font-size: 0.82rem; }
+    .step-tube-from, .step-tube-to { font-size: 1rem; }
+    .step-ball-inline { width: 15px; height: 15px; }
+    .stat-chip { font-size: 0.7rem; padding: 4px 10px; }
+
+    /* Color legend compact trên mobile */
+    #color-legend > div { padding: 7px 10px; }
+
+    /* Popup */
+    #color-popup { width: 190px; padding: 12px; }
+    .popup-colors { gap: 6px; }
+    .popup-chip { width: 32px; height: 32px; }
+
+    /* Info rows */
+    .info-row { font-size: 0.72rem; }
+
+    /* Solution stats */
+    .solution-stats { gap: 6px; }
+  }
+
+  @media (max-width: 380px) {
+    .container { padding: 16px 10px 40px; }
+    .panel { padding: 14px 12px; }
+    .ball-slot { max-width: 28px; }
+    .tube-label { width: 18px; font-size: 0.65rem; }
+    h1 { font-size: 1.5rem; }
   }
 
   .panel {
@@ -127,7 +209,7 @@
 
   .panel-title {
     font-size: 0.72rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 3px;
@@ -148,7 +230,7 @@
   .config-row label {
     color: var(--muted);
     font-size: 0.8rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     white-space: nowrap;
   }
 
@@ -178,7 +260,7 @@
   .config-item label {
     color: var(--text);
     font-size: 0.85rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     white-space: nowrap;
     font-weight: 600;
   }
@@ -188,7 +270,7 @@
   }
 
   .input-hint {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem;
     color: var(--muted);
     white-space: nowrap;
@@ -202,7 +284,7 @@
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.95rem;
     padding: 7px 10px;
     text-align: center;
@@ -216,7 +298,7 @@
     padding: 9px 18px;
     border-radius: 12px;
     border: none;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
     font-weight: 700;
     font-size: 0.82rem;
     cursor: pointer;
@@ -265,7 +347,8 @@
   .tube-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    min-width: 0; /* cho phép co lại */
   }
 
   #tubes-container {
@@ -273,22 +356,28 @@
   }
 
   .tube-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
     color: var(--muted);
-    width: 36px;
+    width: 28px;
     flex-shrink: 0;
+    text-align: right;
   }
 
   .tube-balls {
-    display: grid;
-    grid-template-columns: repeat(var(--tube-size, 4), 38px);
-    gap: 6px;
+    display: flex;
+    flex-wrap: nowrap;   /* luôn 1 hàng ngang */
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
   }
 
   .ball-slot {
-    width: 38px;
-    height: 38px;
+    /* Co/giãn đều nhau, giữ tỷ lệ 1:1, tối đa 38px */
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 38px;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     border: 2px dashed var(--border);
     display: flex;
@@ -297,10 +386,9 @@
     cursor: pointer;
     transition: all 0.15s;
     position: relative;
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   .ball-slot:hover { border-color: var(--accent); transform: scale(1.1); }
@@ -328,8 +416,40 @@
 
   .ball-slot.filled:hover .remove-ball { display: flex; }
 
+  /* Ống rỗng: hình tròn gạch chéo nổi bật */
+  .ball-slot-empty {
+    cursor: default !important;
+    transform: none !important;
+    position: relative;
+    overflow: hidden;
+    border: 2px dashed rgba(78,255,158,0.45) !important;
+    background: rgba(78,255,158,0.04);
+    box-shadow: 0 0 10px rgba(78,255,158,0.1);
+  }
+
+  .ball-slot-empty::before,
+  .ball-slot-empty::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 55%;
+    height: 2px;
+    background: rgba(78,255,158,0.5);
+    border-radius: 2px;
+    transform-origin: center;
+  }
+
+  .ball-slot-empty::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .ball-slot-empty::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
   .tube-empty-tag {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     color: var(--success);
     padding: 6px 14px;
@@ -364,7 +484,7 @@
   .solution-stats { display: flex; gap: 12px; flex-wrap: wrap; }
 
   .stat-chip {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.78rem;
     padding: 5px 14px;
     border-radius: 20px;
@@ -397,12 +517,47 @@
     opacity: 0;
     transform: translateX(-8px);
     animation: slideIn 0.25s forwards;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+  }
+
+  .step-item:hover {
+    border-color: var(--accent);
+  }
+
+  .step-item.done {
+    background: rgba(78,255,158,0.05);
+    border-color: rgba(78,255,158,0.2);
+  }
+
+  .step-item.done .step-content {
+    display: none;
+  }
+
+  .step-item.done .step-done-label {
+    display: flex;
+  }
+
+  .step-done-label {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--success);
+    flex: 1;
+  }
+
+  .step-done-label::before {
+    content: '✓';
+    font-size: 0.8rem;
   }
 
   @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
 
   .step-num {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     color: var(--muted);
     width: 30px;
@@ -420,11 +575,23 @@
     box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3), inset 0 3px 6px rgba(255,255,255,0.2);
   }
 
+  .step-ball-inline {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 0 3px;
+    flex-shrink: 0;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.35), inset 0 2px 4px rgba(255,255,255,0.25);
+    position: relative;
+    top: -1px;
+  }
+
   .step-text { font-size: 0.88rem; flex: 1; }
   .step-text strong { color: var(--text); }
   .step-text .arrow { color: var(--accent); margin: 0 5px; }
-  .step-tube-from { color: var(--accent2); font-weight: 700; }
-  .step-tube-to { color: var(--success); font-weight: 700; }
+  .step-tube-from { color: var(--accent2); font-weight: 800; font-size: 1.1rem; }
+  .step-tube-to { color: var(--success); font-weight: 800; font-size: 1.1rem; }
 
   .error-msg {
     padding: 12px 16px;
@@ -432,7 +599,7 @@
     border: 1px solid rgba(255,80,80,0.3);
     border-radius: 12px;
     color: #ff8080;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.82rem;
     display: none;
     margin-bottom: 12px;
@@ -444,7 +611,7 @@
     text-align: center;
     padding: 40px;
     color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .loading.visible { display: block; }
 
@@ -463,7 +630,7 @@
     text-align: center;
     padding: 30px;
     color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
   }
   .no-solution .icon { font-size: 2.5rem; margin-bottom: 10px; }
 
@@ -485,7 +652,7 @@
   #color-popup.open { display: flex; }
 
   .popup-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.68rem;
     color: var(--muted);
     letter-spacing: 2px;
@@ -515,7 +682,7 @@
     bottom: -18px;
     left: 50%;
     transform: translateX(-50%);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.55rem;
     color: var(--muted);
     white-space: nowrap;
@@ -532,7 +699,7 @@
   }
 
   .popup-close {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
     color: var(--muted);
     cursor: pointer;
@@ -543,7 +710,7 @@
   .popup-close:hover { color: var(--accent2); background: rgba(255,106,155,0.1); }
 
   .popup-clear {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
     color: var(--accent2);
     cursor: pointer;
@@ -576,7 +743,7 @@
   }
 
   .upload-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.7rem;
     color: var(--success);
     letter-spacing: 1px;
@@ -601,7 +768,7 @@
   .upload-preview.show { display: block; }
 
   .ai-status {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.73rem;
     margin-top: 8px;
     padding: 8px 12px;
@@ -617,7 +784,7 @@
 
   /* VALIDATION */
   .validation-bar {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     padding: 8px 12px;
     border-radius: 8px;
@@ -641,7 +808,7 @@
     display: flex;
     gap: 8px;
     margin-bottom: 7px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.73rem;
     color: var(--muted);
     line-height: 1.4;
@@ -659,7 +826,7 @@
 
   /* Config hint */
   .config-hint-msg {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 0.75rem;
     color: var(--muted);
     text-align: center;
@@ -702,7 +869,7 @@
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Be Vietnam Pro', sans-serif;
   }
 
   .btn-solve-big:hover {
@@ -789,7 +956,7 @@
         <div class="info-row"><span class="num">03</span><span>Hover viên → bấm ✕ để xóa</span></div>
         <div class="info-row"><span class="num">04</span><span>Ô 1 = viên <strong style="color:var(--accent)">trên cùng</strong> của ống</span></div>
         <div class="info-row"><span class="num">05</span><span>Tuỳ chỉnh số viên/ống (3–6) theo từng màn</span></div>
-        <div class="info-row"><span class="num">06</span><span>BFS đảm bảo lời giải <strong style="color:var(--accent)">ít bước nhất</strong></span></div>
+        
       </div>
 
       <!-- Color legend -->
@@ -802,7 +969,7 @@
     <!-- SOLUTION -->
     <div class="panel solution-panel" id="solution-panel">
       <div class="solution-header">
-        <div class="panel-title" style="margin:0">◈ Lời giải BFS</div>
+        <div class="panel-title" style="margin:0">◈ Cách giải</div>
         <div class="solution-stats" id="solution-stats"></div>
       </div>
       <div class="error-msg" id="error-msg"></div>
@@ -902,11 +1069,11 @@ function buildColorLegend() {
     nameRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
 
     const viName = document.createElement('span');
-    viName.style.cssText = 'font-size:0.88rem;font-weight:700;color:var(--text);font-family:Syne,sans-serif;';
+    viName.style.cssText = "font-size:0.88rem;font-weight:700;color:var(--text);font-family:'Be Vietnam Pro',sans-serif;";
     viName.textContent = COLOR_VI[c.id];
 
     const enName = document.createElement('span');
-    enName.style.cssText = 'font-size:0.75rem;color:var(--muted);font-family:JetBrains Mono,monospace;';
+    enName.style.cssText = "font-size:0.75rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;";
     enName.textContent = c.name;
 
     nameRow.appendChild(viName);
@@ -914,7 +1081,7 @@ function buildColorLegend() {
 
     const code = document.createElement('div');
     code.style.cssText = `
-      font-family:JetBrains Mono,monospace; font-size:0.68rem;
+      font-family: 'IBM Plex Mono', monospace; font-size:0.68rem;
       color:${c.hex}; letter-spacing:1px;
     `;
     code.textContent = `mã: ${c.id}  •  ${c.hex}`;
@@ -1008,17 +1175,19 @@ function renderTubes() {
 
     const label = document.createElement('div');
     label.className = 'tube-label';
-    label.textContent = `Ố${i+1}`;
+    label.textContent = `${i+1}`;
     label.style.color = isEmptyTube ? 'var(--success)' : 'var(--muted)';
+    if (isEmptyTube) label.style.fontWeight = '700';
 
     const balls = document.createElement('div');
     balls.className = 'tube-balls';
 
     if (isEmptyTube) {
-      const tag = document.createElement('div');
-      tag.className = 'tube-empty-tag';
-      tag.textContent = '✓ rỗng';
-      balls.appendChild(tag);
+      for (let j = 0; j < tubeSize; j++) {
+        const slot = document.createElement('div');
+        slot.className = 'ball-slot ball-slot-empty';
+        balls.appendChild(slot);
+      }
     } else {
       for (let j = 0; j < tubeSize; j++) {
         const slot = document.createElement('div');
@@ -1209,6 +1378,9 @@ function solve() {
   const stats     = document.getElementById('solution-stats');
 
   solPanel.classList.add('visible');
+  setTimeout(() => {
+    solPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
   loading.classList.add('visible');
   errorMsg.classList.remove('visible');
   stepsList.innerHTML = '';
@@ -1265,16 +1437,19 @@ function solve() {
       const item = document.createElement('div');
       item.className = 'step-item';
       item.style.animationDelay = `${idx * 22}ms`;
+      item.onclick = () => item.classList.toggle('done');
       item.innerHTML = `
         <div class="step-num">${idx+1}</div>
-        <div class="step-ball" style="background:${ballGradient(c.hex)}"></div>
-        <div class="step-text">
-          Đổ <strong>${c.emoji} ${COLOR_VI[c.id] || c.name}</strong>
-          <span class="arrow">từ</span>
-          <span class="step-tube-from">Ống ${src}</span>
-          <span class="arrow">→</span>
-          <span class="step-tube-to">Ống ${dst}</span>
+        <div class="step-content" style="display:flex;align-items:center;gap:8px;flex:1;">
+          <div class="step-text">
+            Đổ <span class="step-ball-inline" style="background:${ballGradient(c.hex)}"></span>
+            <span class="arrow">từ</span>
+            <span class="step-tube-from">${src}</span>
+            <span class="arrow">→</span>
+            <span class="step-tube-to">${dst}</span>
+          </div>
         </div>
+        <div class="step-done-label">Xong</div>
       `;
       stepsList.appendChild(item);
     });
@@ -1416,6 +1591,15 @@ function ballGradient(hex) {
   const dark  = `rgb(${Math.max(0,r-50)},${Math.max(0,g-50)},${Math.max(0,b-50)})`;
   return `radial-gradient(circle at 35% 30%, ${light}, ${hex} 55%, ${dark})`;
 }
+
+// Expose functions to global scope for inline HTML handlers
+window.onConfigChange = onConfigChange;
+window.buildTubes     = buildTubes;
+window.loadPreset     = loadPreset;
+window.clearAll       = clearAll;
+window.solve          = solve;
+window.closePopup     = closePopup;
+window.clearSlot      = clearSlot;
 
 init();
 </script>
